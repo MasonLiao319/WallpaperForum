@@ -1,0 +1,87 @@
+﻿.thumbnail {
+    width: 100px;
+    height: auto;
+}
+
+.profile-pic {
+    width: 150px;
+    height: auto;
+    border-radius: 50%;
+}
+
+/* Home page masonry styles */
+.masonry-grid {
+    column-count: 3;
+    column-gap: 1.5em;
+}
+
+.masonry-grid-item {
+    display: inline-block;
+    margin: 0 0 2em;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+    .masonry-grid-item img {
+        width: 100%;
+        height: auto;
+        transition: filter 0.3s ease-in-out;
+    }
+
+        .masonry-grid-item img:hover {
+            filter: brightness(0.65);
+            cursor: pointer;
+        }
+
+/* Hover overlay for title and date */
+.image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.masonry-grid-item:hover .image-overlay {
+    opacity: 0.8;
+}
+
+/* collapse grid to 2 columns */
+@media (max-width: 992px) {
+    .masonry-grid {
+        column-count: 2;
+    }
+}
+
+/* collapse grid to 1 column */
+@media (max-width: 768px) {
+    .masonry-grid {
+        column-count: 1;
+    }
+}
+
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+   
+    margin-bottom: 60px;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;    
+    height: 60px;
+    line-height: 60px; 
+    background-color: #f5f5f5;
+}

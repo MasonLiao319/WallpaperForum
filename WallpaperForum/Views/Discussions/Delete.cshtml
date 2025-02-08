@@ -1,0 +1,44 @@
+﻿@model WallpaperForum.Models.Discussion
+
+@{
+    ViewData["Title"] = "Delete Discussion";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <h2 class="mb-4 text-danger">Delete Discussion</h2>
+            <p class="alert alert-warning">Are you sure you want to delete this discussion? This action cannot be undone.</p>
+
+            <div class="card shadow-sm border-danger">
+                <div class="card-body">
+                    <h4 class="card-title text-danger">@Model.Title</h4>
+                    <p class="card-text">@Model.Content</p>
+
+                    @if (!string.IsNullOrEmpty(Model.ImageFilename))
+                    {
+                        <div class="mb-3">
+                            <img src="~/images/@Model.ImageFilename" class="img-fluid rounded shadow-sm" alt="Discussion Image" style="max-height: 300px; object-fit: cover;">
+                        </div>
+                    }
+
+                    <p class="text-muted">Created on: @Model.CreateDate.ToString("yyyy-MM-dd HH:mm")</p>
+                </div>
+            </div>
+
+            <form asp-action="Delete" method="post" class="mt-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="DiscussionId" />
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="bi bi-trash"></i> Delete Discussion
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,57 @@
+﻿@model WallpaperForum.Models.Discussion
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <h2 class="mb-4">Discussion Details</h2>
+
+            <div class="card shadow-sm p-4">
+                <dl class="row">
+                    <dt class="col-sm-3 fw-bold">
+                        @Html.DisplayNameFor(model => model.Title)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Title)
+                    </dd>
+
+                    <dt class="col-sm-3 fw-bold">
+                        @Html.DisplayNameFor(model => model.Content)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Content)
+                    </dd>
+
+                    <dt class="col-sm-3 fw-bold">
+                        @Html.DisplayNameFor(model => model.CreateDate)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.CreateDate)
+                    </dd>
+
+                    @if (!string.IsNullOrEmpty(Model.ImageFilename))
+                    {
+                        <dt class="col-sm-3 fw-bold">Image</dt>
+                        <dd class="col-sm-9">
+                            <img src="~/images/@Model.ImageFilename" alt="Discussion Image"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="max-height: 300px; object-fit: cover;" />
+                        </dd>
+                    }
+                </dl>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a asp-action="Edit" asp-route-id="@Model?.DiscussionId" class="btn btn-primary">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
