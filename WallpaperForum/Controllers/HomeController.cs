@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WallpaperForum.Data;
@@ -10,40 +11,78 @@ namespace WallpaperForum.Controllers
     {
         
         private readonly WallpaperForumContext _context;
+        private readonly UserManager<ApplicationUser> _userManager; 
 
-        public HomeController(ILogger<HomeController> logger, WallpaperForumContext context)
+        public HomeController(
+            ILogger<HomeController> logger,
+            WallpaperForumContext context,
+            UserManager<ApplicationUser> userManager) 
         {
             
             _context = context;
+            _userManager = userManager;
         }
 
-        
-           public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index()
         {
             var discussions = await _context.Discussion
-                .OrderByDescending(d => d.CreateDate) 
+                .Include(d => d.ApplicationUser) 
+                .OrderByDescending(d => d.CreateDate)
                 .ToListAsync();
-
             return View(discussions);
         }
-        
 
-        public async Task<IActionResult> GetDiscussion(int id)
+        public async Task<IActionResult> GetDiscussion(int? id)
         {
-            // Fetch the discussion and its related comments in descending order by create date
+            if (id == null)
+            {
+                return NotFound();
+            }
             var discussion = await _context.Discussion
+                .Include(d => d.ApplicationUser)
                 .Include(d => d.Comments)
-                .FirstOrDefaultAsync(d => d.DiscussionId == id);
-
+                    .ThenInclude(c => c.ApplicationUser)
+                .FirstOrDefaultAsync(m => m.DiscussionId == id);
             if (discussion == null)
             {
                 return NotFound();
             }
+            return View(discussion);
+        }
 
-            // Order comments by CreateDate descending
-            discussion.Comments = discussion.Comments?.OrderByDescending(c => c.CreateDate).ToList();
+        // GET: Home/Profile/{username}
+        
+        public async Task<IActionResult> Profile(string username, string id = null)
+        {
+            ApplicationUser user = null;
 
-            return View(discussion); 
+            if (!string.IsNullOrEmpty(username))
+            {
+                user = await _userManager.Users
+                    .FirstOrDefaultAsync(u => u.Name == username);
+            }
+
+            
+            if (user == null && !string.IsNullOrEmpty(id))
+            {
+                user = await _userManager.FindByIdAsync(id);
+            }
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            
+            var userDiscussions = await _context.Discussion
+                .Where(d => d.ApplicationUserId == user.Id)
+                .OrderByDescending(d => d.CreateDate)
+                .ToListAsync();
+
+            
+            ViewBag.UserDiscussions = userDiscussions;
+
+            return View(user);
         }
 
         public IActionResult Privacy()

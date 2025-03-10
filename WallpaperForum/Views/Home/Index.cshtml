@@ -1,30 +1,48 @@
-﻿@model IEnumerable<dynamic>
-
+﻿@model IEnumerable<WallpaperForum.Models.Discussion>
 @{
     ViewData["Title"] = "Image Gallery";
 }
-
 <div class="container mt-4">
     <div class="row align-items-center">
-       
+
         <div class="col-md-7">
             <h1 class="fw-bold">WallpaperForum</h1>
             <p class="text-muted">A place to share and discover amazing wallpapers.</p>
         </div>
 
-        
         <div class="col-md-5">
             @if (Model != null && Model.Any())
             {
-                var latestImage = Model.OrderByDescending(m => m.CreateDate).FirstOrDefault(); 
-
+                var latestImage = Model.OrderByDescending(m => m.CreateDate).FirstOrDefault();
                 @if (latestImage != null && !string.IsNullOrEmpty(latestImage.ImageFilename))
                 {
                     <div class="latest-uploaded-card shadow-sm">
                         <a asp-action="GetDiscussion" asp-controller="Home" asp-route-id="@latestImage.DiscussionId">
                             <img src="@Url.Content("~/images/" + latestImage.ImageFilename)" alt="Latest Image" class="img-fluid rounded" />
                         </a>
-                        <p class="small text-muted mt-2">🆕 Latest uploaded image on @latestImage.CreateDate.ToString("g")</p>
+                        <div class="d-flex align-items-center mt-2">
+                            @if (latestImage.ApplicationUser != null && !string.IsNullOrEmpty(latestImage.ApplicationUser.ImageFilename))
+                            {
+                                <img src="@Url.Content("~/profile_img/" + latestImage.ApplicationUser.ImageFilename)"
+                                     class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <img src="@Url.Content("~/images/default-avatar.png")"
+                                     class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;" />
+                            }
+                            <div>
+                                <a href="@Url.Action("Profile", "Home", new { id = latestImage.ApplicationUserId })" class="text-decoration-none">
+                                    @(latestImage.ApplicationUser != null && !string.IsNullOrEmpty(latestImage.ApplicationUser.Name)
+                                        ? latestImage.ApplicationUser.Name
+                                        : "Anonymous")
+                                </a>
+                                @if (latestImage.ApplicationUser != null && latestImage.ApplicationUser.IsForHire == true)
+                                {
+                                    <span class="available-tag ms-2">Available for hire</span>
+                                }
+                            </div>
+                        </div>
                     </div>
                 }
             }
@@ -34,8 +52,7 @@
     <div class="masonry-grid mt-5">
         @if (Model != null && Model.Any())
         {
-            var otherImages = Model.OrderByDescending(m => m.CreateDate).Skip(1); 
-
+            var otherImages = Model.OrderByDescending(m => m.CreateDate).Skip(1);
             @foreach (var item in otherImages)
             {
                 if (!string.IsNullOrEmpty(item.ImageFilename))
@@ -44,8 +61,27 @@
                         <a asp-action="GetDiscussion" asp-controller="Home" asp-route-id="@item.DiscussionId">
                             <img src="@Url.Content("~/images/" + item.ImageFilename)" alt="Gallery Image" class="img-fluid" />
                             <div class="image-overlay">
-                                <h5>@item.Title</h5>
-                                <p><i class="fa-solid fa-calendar"></i> @item.CreateDate.ToString("g")</p>
+                                <div class="d-flex align-items-center">
+                                    @if (item.ApplicationUser != null && !string.IsNullOrEmpty(item.ApplicationUser.ImageFilename))
+                                    {
+                                        <img src="@Url.Content("~/profile_img/" + item.ApplicationUser.ImageFilename)"
+                                             class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <img src="@Url.Content("~/images/default-avatar.png")"
+                                             class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;" />
+                                    }
+                                    <a href="@Url.Action("Profile", "Home", new { id = item.ApplicationUserId })" class="text-white text-decoration-none">
+                                        @(item.ApplicationUser != null && !string.IsNullOrEmpty(item.ApplicationUser.Name)
+                                            ? item.ApplicationUser.Name
+                                            : "Anonymous")
+                                    </a>
+                                </div>
+                                @if (item.ApplicationUser != null && item.ApplicationUser.IsForHire == true)
+                                {
+                                    <div class="available-tag">Available for hire</div>
+                                }
                             </div>
                         </a>
                     </div>

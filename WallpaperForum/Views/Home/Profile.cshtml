@@ -1,0 +1,119 @@
+﻿@model WallpaperForum.Data.ApplicationUser
+@{
+    ViewData["Title"] = $"{Model.Name}'s Profile";
+    var discussions = ViewBag.UserDiscussions as List<WallpaperForum.Models.Discussion>;
+}
+<div class="container mt-4">
+    <!-- Profile Header Section -->
+    <div class="row mb-5">
+        <div class="col-md-3 text-center">
+            @if (!string.IsNullOrEmpty(Model.ImageFilename))
+            {
+                <img src="@Url.Content("~/profile_img/" + Model.ImageFilename)"
+                     class="img-fluid rounded-circle shadow"
+                     style="width: 180px; height: 180px; object-fit: cover;"
+                     alt="@Model.Name's profile picture" />
+            }
+            else
+            {
+                <img src="@Url.Content("~/images/default-avatar.png")"
+                     class="img-fluid rounded-circle shadow"
+                     style="width: 180px; height: 180px; object-fit: cover;"
+                     alt="Default profile picture" />
+            }
+        </div>
+        <div class="col-md-9">
+            <h1 class="display-4 fw-bold mb-3">@Model.Name</h1>
+
+            <div class="user-info mb-4">
+                @if (!string.IsNullOrEmpty(Model.Bio))
+                {
+                    <div class="mb-3">
+                        <i class="fas fa-quote-left me-2 text-secondary"></i>
+                        <span>@Model.Bio</span>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Location))
+                {
+                    <div class="mb-3">
+                        <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
+                        <span>@Model.Location</span>
+                    </div>
+                }
+
+                @if (Model.IsForHire)
+                {
+                    <div class="mb-3">
+                        <i class="fas fa-briefcase me-2 text-secondary"></i>
+                        <span>Available for hire</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Photos Count Section -->
+    <div class="border-top border-bottom mb-4">
+        <div class="py-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-images me-2 text-secondary"></i>
+                <span class="fw-bold">Photos @(discussions?.Count ?? 0)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Section -->
+    <div class="mb-5">
+        @if (discussions != null && discussions.Any())
+        {
+            <div class="row g-4">
+                @foreach (var discussion in discussions)
+                {
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="image-container rounded shadow-sm overflow-hidden">
+                            <a href="@Url.Action("GetDiscussion", "Home", new { id = discussion.DiscussionId })" class="text-decoration-none">
+                                @if (!string.IsNullOrEmpty(discussion.ImageFilename))
+                                {
+                                    <img src="@Url.Content("~/images/" + discussion.ImageFilename)"
+                                         class="img-fluid w-100"
+                                         alt="@discussion.Title" />
+                                }
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5 bg-light rounded">
+                <i class="fas fa-images fa-3x mb-3 text-muted"></i>
+                <h3>No photos yet</h3>
+                <p class="text-muted">When @Model.Name uploads photos, they will appear here.</p>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mb-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+            <i class="fas fa-home me-2"></i>Back to Home
+        </a>
+    </div>
+</div>
+
+<style>
+    .user-info {
+        padding-left: 0.5rem;
+        border-left: 3px solid #f0f0f0;
+    }
+
+  
+
+    
+</style>
+
+
+@section Scripts {
+    <script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+}

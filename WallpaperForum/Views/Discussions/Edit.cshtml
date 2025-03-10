@@ -3,15 +3,22 @@
     ViewData["Title"] = "Edit Discussion";
 }
 
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
 <div class="container mt-4">
     <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
             <h2 class="mb-4">Edit Discussion</h2>
 
-            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <form asp-controller="Discussions" asp-action="Edit" asp-route-id="@Model.DiscussionId" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="DiscussionId" />
                 <input type="hidden" asp-for="ImageFilename" />
+                <input type="hidden" asp-for="CreateDate" />
+                <input type="hidden" asp-for="ApplicationUserId" />
 
                 <div class="mb-4">
                     <label asp-for="Title" class="form-label fw-bold"></label>
@@ -48,16 +55,15 @@
 
                 <div class="mb-4">
                     <label asp-for="CreateDate" class="form-label fw-bold"></label>
-                    <input asp-for="CreateDate" class="form-control" readonly />
-                    <span asp-validation-for="CreateDate" class="text-danger"></span>
+                    <div class="form-control bg-light">@Model.CreateDate.ToString("g")</div>
                 </div>
 
                 <div class="d-flex gap-2 mb-4">
                     <button type="submit" class="btn btn-primary px-4">
                         <i class="bi bi-save"></i> Save Changes
                     </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Back to List
+                    <a asp-controller="Discussions" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to my thread
                     </a>
                 </div>
             </form>
@@ -71,7 +77,6 @@
     }
 
     <script>
-        
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {

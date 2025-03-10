@@ -38,9 +38,9 @@
                 </div>
 
                 <div class="mb-4">
-                    <label asp-for="CreateDate" class="control-label"></label>
-                    <input asp-for="CreateDate" class="form-control" />
-                    <span asp-validation-for="CreateDate" class="text-danger"></span>
+                    <label class="form-label fw-bold">Create Date</label>
+                    <p class="form-control-plaintext">@DateTime.Now.ToString("yyyy-MM-dd HH:mm tt")</p>
+                   
                 </div>
 
                 <div class="d-flex gap-2 mb-4">

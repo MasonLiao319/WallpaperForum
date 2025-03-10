@@ -4,6 +4,20 @@
     ViewData["Title"] = "Details";
 }
 
+@if (Model.ApplicationUser != null)
+{
+    <div class="d-flex">
+        <div>image</div>
+        <div>
+            @Model.ApplicationUser.Name<br>
+            @if(Model.ApplicationUser.IsForHire == true)
+            {
+                <span class="text-primary" style="font-size:0.9em;"> Available for hire <i class="fa-solid fa-circle-check"></i></span>
+            }
+        </div>
+    </div>
+}
+
 <div class="container mt-4">
     <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">

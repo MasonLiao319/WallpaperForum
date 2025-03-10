@@ -1,23 +1,50 @@
 ﻿@model WallpaperForum.Models.Discussion
-
 @{
     ViewData["Title"] = "Discussion Details";
 }
-
 <!-- FontAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
 <div class="container mt-4">
-    <div class="card shadow-lg p-4" style="background-color: rgba(248, 245, 240, 0.8); border-radius: 10px;">
+    <div class="card shadow-lg p-4" style="background-color: rgba(255, 255, 255, 0.8); border-radius: 10px;">
         @if (!string.IsNullOrEmpty(Model.ImageFilename))
         {
             <div class="text-center mb-3">
                 <img src="@Url.Content("~/images/" + Model.ImageFilename)" alt="Discussion Image" class="img-fluid rounded" style="max-width: 100%; height: auto;" />
             </div>
         }
-
-        <div class="card-header bg-transparent d-flex align-items-center">
-            <h3 class="mb-0">@Model.Title</h3>
+        <div class="card-header bg-transparent">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h3 class="mb-0">@Model.Title</h3>
+                <!-- Author information -->
+                <div class="d-flex align-items-center">
+                    @if (Model.ApplicationUser != null)
+                    {
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(Model.ApplicationUser.ImageFilename))
+                            {
+                                <img src="@Url.Content("~/profile_img/" + Model.ApplicationUser.ImageFilename)"
+                                     class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;"
+                                     alt="Author Avatar" />
+                            }
+                            else
+                            {
+                                <img src="@Url.Content("~/images/default-avatar.png")"
+                                     class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;"
+                                     alt="Default Avatar" />
+                            }
+                            <!-- Author -->
+                            <div>
+                                <div class="fw-bold">
+                                    <a href="@Url.Action("Profile", "Home", new { id = Model.ApplicationUserId })" class="text-decoration-none">
+                                        @(string.IsNullOrEmpty(Model.ApplicationUser.Name) ? "Anonymous" : Model.ApplicationUser.Name)
+                                    </a>
+                                </div>
+                                <small class="text-muted">Author</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <dl class="row">
@@ -35,36 +62,117 @@
                 </dd>
             </dl>
         </div>
-
         <div class="card-footer">
-            <h3><i class="fa-solid fa-comments"></i> Comments</h3>
-            <a asp-action="Create" asp-controller="Comments" asp-route-discussionId="@Model.DiscussionId" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Add New Comment
-            </a>
-
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0"><i class="fa-solid fa-comments"></i> Comments</h3>
+                <!-- Add New Comment button -->
+                <form method="post" action="@Url.Action("Create", "Comments")">
+                    <input type="hidden" name="discussionId" value="@Model.DiscussionId" />
+                    <a href="@Url.Action("Create", "Comments", new { discussionId = Model.DiscussionId })" class="btn btn-primary">
+                        Add Comment
+                    </a>
+                </form>
+            </div>
             @if (Model.Comments != null && Model.Comments.Any())
             {
-                <ul class="list-group mt-3">
+                <div class="comment-list">
                     @foreach (var comment in Model.Comments)
                     {
-                        <li class="list-group-item">
-                            <p><strong>@comment.Content</strong></p>
-                            <p><i class="fa-solid fa-calendar"></i> Created: @comment.CreateDate.ToString("g")</p>
-                        </li>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    @if (comment.ApplicationUser != null)
+                                    {
+                                        @if (!string.IsNullOrEmpty(comment.ApplicationUser.ImageFilename))
+                                        {
+                                            <img src="@Url.Content("~/profile_img/" + comment.ApplicationUser.ImageFilename)"
+                                                 class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;"
+                                                 alt="Commenter Avatar" />
+                                        }
+                                        else
+                                        {
+                                            <img src="@Url.Content("~/images/default-avatar.png")"
+                                                 class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;"
+                                                 alt="Default Avatar" />
+                                        }
+                                        <div>
+                                            <strong>
+                                                <a href="@Url.Action("Profile", "Home", new { id = comment.ApplicationUserId })" class="text-decoration-none">
+                                                    @(string.IsNullOrEmpty(comment.ApplicationUser.Name) ? "Anonymous" : comment.ApplicationUser.Name)
+                                                </a>
+                                            </strong>
+                                            <div class="text-muted small">@comment.CreateDate.ToString("MMM dd, yyyy HH:mm")</div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <img src="@Url.Content("~/images/default-avatar.png")"
+                                             class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;"
+                                             alt="Default Avatar" />
+                                        <div>
+                                            <strong>Anonymous</strong>
+                                            <div class="text-muted small">@comment.CreateDate.ToString("MMM dd, yyyy HH:mm")</div>
+                                        </div>
+                                    }
+                                </div>
+                                <p class="mb-0">@comment.Content</p>
+                            </div>
+
+                            @if (comment.ApplicationUser != null && User.Identity.IsAuthenticated && comment.ApplicationUserId == ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                            {
+                                <div class="card-footer bg-transparent py-2">
+                                    <div class="d-flex justify-content-end gap-2">
+
+                                        <form method="post" action="@Url.Action("Delete", "Comments")">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@comment.CommentId" />
+                                            <input type="hidden" name="discussionId" value="@Model.DiscussionId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this comment?');">
+                                                <i class="fa-solid fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     }
-                </ul>
+                </div>
             }
             else
             {
-                <p class="text-muted mt-3">No comments yet.</p>
+                <div class="alert alert-light text-center py-4">
+                    <i class="fa-solid fa-comment-slash fa-2x mb-3 text-muted"></i>
+                    <p class="mb-0">No comments yet. Be the first to share your thoughts!</p>
+                </div>
             }
         </div>
-
-        <div class="card-footer d-flex justify-content-between">
-            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
-                <i class="fa-solid fa-arrow-left"></i> Back to Home
-            </a>
+        <div class="card-footer d-flex justify-content-between mt-3">
+            <!-- Back to Home button -->
+            <form method="get" action="@Url.Action("Index", "Home")">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Home
+                </button>
+            </form>
+            <!-- If user is post author, show edit and delete buttons -->
+            @if (Model.ApplicationUser != null && User.Identity.IsAuthenticated && Model.ApplicationUserId == ViewContext.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+            {
+                <div class="d-flex gap-2">
+                    <!-- Edit Discussion button -->
+                    <form method="get" action="@Url.Action("Edit", "Discussions")">
+                        <input type="hidden" name="id" value="@Model.DiscussionId" />
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-edit"></i> Edit
+                        </button>
+                    </form>
+                    <!-- Delete Discussion button -->
+                    <form method="get" action="@Url.Action("Delete", "Discussions")">
+                        <input type="hidden" name="id" value="@Model.DiscussionId" />
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </div>
+            }
         </div>
     </div>
 </div>
-
